@@ -1,0 +1,178 @@
+:root {
+    /* --brand-color: #3399cc;
+    --brand-dark: #3399cc; */
+    --brand-color: #89b827;
+    --brand-dark: #89b827;
+    --sidebar-bg: #f8f9fa;
+    --font-family: 'Inter', sans-serif;
+    --font-size: 14px;
+}
+
+body {
+    font-family: var(--font-family);
+    background: #f5f7fa;
+    font-size: var(--font-size);
+}
+
+.admin-navbar {
+    background: var(--brand-color);
+    padding: 15px 30px;
+}
+
+.admin-navbar .navbar-brand {
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+}
+
+.admin-sidebar {
+    /* width: 260px; */
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid #e0e0e0;
+    padding: 0 0;
+}
+
+.admin-sidebar .nav-link {
+    color: #333;
+    padding: 12px 20px;
+    font-weight: bold;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    font-size: 13px;
+}
+
+.admin-sidebar .nav-link:hover {
+    background: #e9f2fb;
+    border-left: 4px solid var(--brand-color);
+    color: var(--brand-color);
+}
+
+.admin-sidebar .nav-link.active {
+    background: #dbeafe;
+    border-left: 4px solid var(--brand-color);
+    color: var(--brand-color);
+    font-weight: 600;
+}
+
+.main-content {
+    background: #fff;
+    min-height: 100vh;
+    padding: 25px;
+    box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-footer {
+    background: var(--brand-dark);
+    color: #ffffff;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.admin-sidebar ul li {
+    border: 2px solid #fff;
+}
+
+/* Admin Dashboard */
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.hover-scale:hover {
+    transform: translateY(-5px);
+    transition: 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+
+.card.no-radius,
+.card.no-radius .card-header {
+    border-radius: 0 !important;
+}
+
+.dashboard-bg-color {
+    background: var(--brand-dark);
+    color: #fff;
+}
+
+.card-body-icons-circle {
+    text-decoration: none;
+    color: #000;
+}
+
+.card-body-icons-circle:hover {
+    color: var(--brand-dark);
+}
+
+p.card-title.mt-2 {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+thead.table-dark {
+    font-size: 14px;
+}
+
+td {
+    font-size: 14px;
+}
+
+thead.dashboard-table-heading th {
+    color: var(--brand-color);
+}
+
+/* Navbar dropdown */
+a.dropdown-item {
+    font-size: 14px;
+}
+
+a.dropdown-item:hover {
+    font-size: 14px;
+    background-color: var(--brand-color);
+    color: #fff;
+}
+
+/* Profile */
+.profile-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #3399cc;
+}
+/* .fs-6 {
+     font-size: 0.8rem !important; 
+}
+.nav-link {
+    display: flex !important;
+    padding: 12px !important;
+} */
+
+.form-select,.form-control {
+    font-size: 14px !important;
+}
+
+.bg-bmtpc{
+    font-size: 12px;
+    background-color: var(--brand-color);
+    color: #fff;
+}
+
+.modal-header.brand-header {
+    background: var(--brand-color);
+    color: #fff;
+}
+
+.table-hover tbody tr:hover td {
+    background: var(--brand-color) !important;
+    color: #fff !important;
+}
