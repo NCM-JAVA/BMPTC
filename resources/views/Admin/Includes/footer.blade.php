@@ -7,6 +7,7 @@
 
 
 <script src="{{ asset('public/assets/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/custom.js') }}"></script>
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.replace('content', {

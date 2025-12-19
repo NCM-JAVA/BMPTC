@@ -16,33 +16,33 @@ use Illuminate\Support\Facades\DB;
 class HazardController extends Controller
 {
     public function index(Request $request)
-{
-    
-    $query = Hazards::with(['states','districts']);
-
-   
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('hz_code', 'like', "%{$search}%");
-        });
-    }
-
-    
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-  
-    $data = $query->orderBy('name', 'ASC')->paginate(10);
-
-    return view('admin.hazard.index', compact('data'));
-}
-
-     public function create()
     {
-        $states = State::orderBy('state_name','ASC')->get();
+
+        $query = Hazards::with(['states', 'districts']);
+
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('hz_code', 'like', "%{$search}%");
+            });
+        }
+
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+
+        $data = $query->orderBy('name', 'ASC')->paginate(10);
+
+        return view('admin.hazard.index', compact('data'));
+    }
+
+    public function create()
+    {
+        $states = State::orderBy('state_name', 'ASC')->get();
         return view('admin.hazard.add', compact('states'));
     }
 
@@ -50,11 +50,11 @@ class HazardController extends Controller
     {
         $state_id = $request->state_id;
         $hazard_id = $request->hazard_id;
-        
+
         $hazard_districts = hazard_district::where('state_id', $state_id)
-        ->where('hazard_id', $hazard_id)
-        ->pluck('district_id')
-        ->toArray();
+            ->where('hazard_id', $hazard_id)
+            ->pluck('district_id')
+            ->toArray();
 
         $districts = District::where('state_id', $state_id)
             ->orderBy('district_name', 'ASC')
@@ -68,10 +68,10 @@ class HazardController extends Controller
                 <div class="col-md-4">
                     <div class="form-check"> 
                         <input class="form-check-input district-checkbox" type="checkbox" 
-                            name="districts[]" value="'.$district->id.'" 
-                            id="district_'.$district->id.'" '.$checked.'>
-                        <label class="form-check-label" for="district_'.$district->id.'">
-                            '.$district->district_name.'
+                            name="districts[]" value="' . $district->id . '" 
+                            id="district_' . $district->id . '" ' . $checked . '>
+                        <label class="form-check-label" for="district_' . $district->id . '">
+                            ' . $district->district_name . '
                         </label>
                     </div>
                 </div>
@@ -83,7 +83,8 @@ class HazardController extends Controller
         // return response()->json($districts);
     }
 
-    public function getHazardStateImage(Request $request){
+    public function getHazardStateImage(Request $request)
+    {
         $state_id = $request->state_id;
         $hazard_id = $request->hazard_id;
 
@@ -104,7 +105,7 @@ class HazardController extends Controller
             $imageUrl = asset('public/assets/uploads/img/hazards/state_img/' . $hazard_state_img->attachment);
             $html .= '
                 <div class="mt-2">
-                    <a href="' . $imageUrl . '" target="_blank">'. $hazard_state_img->attachment .'</a>
+                    <a href="' . $imageUrl . '" target="_blank">' . $hazard_state_img->attachment . '</a>
                 </div>
             ';
         }
@@ -124,7 +125,7 @@ class HazardController extends Controller
             'hz_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'hz_pdf' => 'nullable|mimes:pdf|max:5120',
             'state' => 'required|exists:states,id',
-            'districts' => 'required|array|min:1',
+            'districts' => 'nullable|array|min:1',
             'districts.*' => 'exists:districts,id',
             'status' => 'required|in:1,2,3'
         ], [
@@ -166,51 +167,49 @@ class HazardController extends Controller
 
         $data->save();
 
-       $existingStates = DB::table('hazard_states')
-            ->where('hazard_id', $data->id)
-            ->pluck('state_id')
-            ->toArray();
+        $stateImageName = null;
+        if ($request->hasFile('upload_state_image')) {
+            $upload_state_image = $request->file('upload_state_image');
+            $stateImageName = time() . '_' . $upload_state_image->getClientOriginalName();
+            $destinationPath = public_path('assets/uploads/img/hazards/state_img');
 
-        $existingDistricts = DB::table('hazard_districts')
-            ->where('hazard_id', $data->id)
-            ->pluck('district_id')
-            ->toArray();
-
-        $stateId = $request->state; 
-        $duplicateStates = $data->states()->where('state_id', $stateId)->exists();
-        $duplicateDistricts = array_intersect($existingDistricts, $validated['districts']);
-
-        if (!empty($duplicateStates) || !empty($duplicateDistricts)) {
-            $duplicateStateNames = State::whereIn('id', $duplicateStates)->pluck('name')->implode(', ');
-            $duplicateDistrictNames = District::whereIn('id', $duplicateDistricts)->pluck('name')->implode(', ');
-
-            DB::rollBack();
-
-            $errorMessage = '';
-            if (!empty($duplicateStateNames)) {
-                $errorMessage .= "State(s) '{$duplicateStateNames}' already linked with this hazard. ";
-            }
-            if (!empty($duplicateDistrictNames)) {
-                $errorMessage .= "District(s) '{$duplicateDistrictNames}' already linked with this hazard.";
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true);
             }
 
-            return back()->with('error', trim($errorMessage))->withInput();
+            $upload_state_image->move($destinationPath, $stateImageName);
+
+            // $data->attachment = $stateImageName;
         }
 
-        $data->states()->syncWithoutDetaching($validated['state']);
-        $data->districts()->syncWithoutDetaching($validated['districts']);
+        $data->states()->attach(
+            $validated['state'],
+            ['attachment' => $stateImageName]
+        );
+
+        if (!empty($validated['districts'])) {
+            $districtAttach = [];
+
+            foreach ($validated['districts'] as $districtId) {
+                $districtAttach[$districtId] = [
+                    'state_id' => $validated['state']
+                ];
+            }
+
+            $data->districts()->attach($districtAttach);
+        }
 
         return redirect()->route('admin.manage-hazard.index')->with('success', 'Hazards added successfully.');
     }
 
-     public function show($id)
+    public function show($id)
     {
         $hazard = Hazards::where('id', $id)->first();
         $hazard_states = DB::table('hazard_states')
-                        ->join('states', 'hazard_states.state_id', '=', 'states.id')
-                        ->where('hazard_states.hazard_id', $id)
-                        ->select('hazard_states.*', 'states.state_name')
-                        ->get();
+            ->join('states', 'hazard_states.state_id', '=', 'states.id')
+            ->where('hazard_states.hazard_id', $id)
+            ->select('hazard_states.*', 'states.state_name')
+            ->get();
 
         $hazard_districts = [];
         foreach ($hazard_states as $state) {
@@ -223,25 +222,25 @@ class HazardController extends Controller
             $hazard_districts[$state->state_id] = $districts;
         }
 
-        return view('admin.hazard.view', compact('hazard','hazard_states','hazard_districts'));
+        return view('admin.hazard.view', compact('hazard', 'hazard_states', 'hazard_districts'));
     }
 
     public function edit($id)
     {
-        $states = State::where('status', 3)->orderBy('state_name','ASC')->get();
+        $states = State::where('status', 3)->orderBy('state_name', 'ASC')->get();
         $data = Hazards::where('id', $id)->first();
-        $hazard_states = hazard_state::where('hazard_id',$id)->first();
+        $hazard_states = hazard_state::where('hazard_id', $id)->first();
         if ($hazard_states) {
-            $hazard_districts = hazard_district::where('hazard_id',$id)
-                                ->where('state_id', $hazard_states->state_id)
-                                ->get();
+            $hazard_districts = hazard_district::where('hazard_id', $id)
+                ->where('state_id', $hazard_states->state_id)
+                ->get();
         } else {
             $hazard_districts = collect();
         }
 
         // dd($hazard_states);
 
-        return view('admin.hazard.edit', compact('data','states','hazard_states','hazard_districts'));
+        return view('admin.hazard.edit', compact('data', 'states', 'hazard_states', 'hazard_districts'));
     }
 
     public function update(Request $request, $id)
@@ -261,7 +260,7 @@ class HazardController extends Controller
 
         $data->name = $request->name;
         $data->status = $request->status;
- 
+
         if ($request->hasFile('hz_image')) {
             $image = $request->file('hz_image');
             $imageName = time() . '_' . $image->getClientOriginalName();
@@ -292,7 +291,7 @@ class HazardController extends Controller
 
         $data->save();
 
-		$stateImageName = null;
+        $stateImageName = null;
         if ($request->hasFile('upload_state_image')) {
             $upload_state_image = $request->file('upload_state_image');
             $stateImageName = time() . '_' . $upload_state_image->getClientOriginalName();
@@ -317,7 +316,7 @@ class HazardController extends Controller
             ->pluck('district_id')
             ->toArray();
 
-        $stateId = $request->state; 
+        $stateId = $request->state;
         $duplicateStates = $data->states()->where('state_id', $stateId)->exists();
         $duplicateDistricts = array_intersect($existingDistricts, $validated['districts'] ?? []);
 
@@ -350,13 +349,13 @@ class HazardController extends Controller
             $data->states()->attach($stateId, ['attachment' => $stateImageName]);
         }
 
-         DB::table('hazard_districts')
-                ->where('hazard_id', $data->id)
-                ->where('state_id', $stateId)
-                ->delete();
-        
+        DB::table('hazard_districts')
+            ->where('hazard_id', $data->id)
+            ->where('state_id', $stateId)
+            ->delete();
+
         $attach = [];
-        $districts = $validated['districts'] ?? []; 
+        $districts = $validated['districts'] ?? [];
         foreach ($districts as $districtId) {
             $attach[$districtId] = ['state_id' => $stateId];
         }
@@ -373,4 +372,3 @@ class HazardController extends Controller
         //
     }
 }
-							

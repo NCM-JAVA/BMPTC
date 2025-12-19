@@ -5,6 +5,13 @@
 @section('content')
     <div class="container">
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="flash-error">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="card shadow-sm border-0 rounded-2">
             <div class="card-header dashboard-bg-color text-white d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Add Mobile App Content</h6>

@@ -58,8 +58,15 @@
                                 </div>
                             </div>
 
+                             <div class="mb-3 row align-items-center d-none" id="state_image_upload">
+                                 <label for="upload_state_image" class="col-sm-4 col-form-label"><b>Upload Hazard State Image</b></label>
+                                <div class="col-sm-6">
+                                    <input type="file" name="upload_state_image" id="upload_state_image" class="form-control">
+                                </div>
+                            </div>
+
                             <div class="mb-3 row align-items-center">
-                                <label for="hz_image" class="col-sm-4 col-form-label"><b>Upload Image </b></label>
+                                <label for="hz_image" class="col-sm-4 col-form-label"><b>Upload Hazard India Image </b></label>
                                 <div class="col-sm-6">
                                     <input type="file" name="hz_image" id="hz_image" class="form-control">
                                 </div>
@@ -129,28 +136,31 @@
                             state_id: state_id
                         },
                         success: function(data){
-                            $('#districts-container').html('');
-                            $.each(data, function(key, district){
-                                console.log(district);
+                            
+                            $('#districts-container').html(data);
+                            // $.each(data, function(key, district){
+                            //     console.log('dasdasdasd--- ', district);
                                 
-                                // $('#districts').append('<option value="'+district.id+'">'+district.district_name+'</option>');
-                                let checkbox = `
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input district-checkbox" type="checkbox" name="districts[]" value="${district.id}" id="district_${district.id}">
-                                            <label class="form-check-label" for="district_${district.id}">${district.district_name}</label>
-                                        </div>
-                                    </div>
-                                `;
-                                $('#districts-container').append(checkbox);
-                            });
-                            $('#select_all_districts').prop('checked', false);
+                            //     // $('#districts').append('<option value="'+district.id+'">'+district.district_name+'</option>');
+                            //     let checkbox = `
+                            //         <div class="col-md-4">
+                            //             <div class="form-check">
+                            //                 <input class="form-check-input district-checkbox" type="checkbox" name="districts[]" value="${district.id}" id="district_${district.id}">
+                            //                 <label class="form-check-label" for="district_${district.id}">${district.district_name}</label>
+                            //             </div>
+                            //         </div>
+                            //     `;
+                            //     $('#districts-container').append(checkbox);
+                            // });
+                            // $('#select_all_districts').prop('checked', false);
                         }
                     });
                 } else {
                     $('#districts-container').html('');
                     $('#select_all_districts').prop('checked', false);
                 }
+
+                $('#state_image_upload').removeClass('d-none');
             });
 
             $(document).on('change', '#select_all_districts', function(){

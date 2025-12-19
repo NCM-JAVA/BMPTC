@@ -5,22 +5,19 @@
 @section('content')
     <div class="container">
 	
-		@if(session('success'))
-		<div id="success-message" class="alert alert-success alert-dismissible fade show" role="alert">
-			<strong>Success!</strong> {{ session('success') }}
-		</div>
+		 @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="flash-success">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-		<script>
-			setTimeout(function() {
-				let box = document.getElementById('success-message');
-				if (box) {
-					box.style.transition = "opacity 1s";
-					box.style.opacity = 0;
-					setTimeout(() => box.remove(), 1000);
-				}
-			}, 5000);
-		</script>
-		@endif
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="flash-error">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="card shadow-sm border-0 no-radius">
             <div class="card-header dashboard-bg-color text-white d-flex justify-content-between align-items-center">

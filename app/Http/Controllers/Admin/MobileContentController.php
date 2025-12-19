@@ -8,6 +8,8 @@ use App\Models\MobileAppContent;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MobileContentController extends Controller
 {
@@ -17,16 +19,16 @@ class MobileContentController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $data->where(function($q) use ($search) {
+            $data->where(function ($q) use ($search) {
                 $q->where('page_name', 'like', "%{$search}%")
-                ->orWhere('title', 'like', "%{$search}%");
+                    ->orWhere('title', 'like', "%{$search}%");
             });
         }
-        
+
         if ($request->filled('status')) {
             $data->where('status', $request->input('status'));
         }
-        
+
         $data = $data->orderBy('id')->paginate(10);
 
         return view('admin.mobilecontent.index', compact('data'));
@@ -59,30 +61,34 @@ class MobileContentController extends Controller
                 ->withInput();
         }
 
+
         $data = $validator->validated();
+
+        // throw new \Exception('Test exception');
 
         if ($request->hasFile('attachment')) {
             $attachment = $request->file('attachment');
             $attachmentName = time() . '_' . $attachment->getClientOriginalName();
             $destinationPath = public_path('assets/uploads/img/mobileAppContent');
 
-            
-
             if (!File::exists($destinationPath)) {
                 File::makeDirectory($destinationPath, 0755, true);
             }
 
             $attachment->move($destinationPath, $attachmentName);
-
             $data['attachment'] = $attachmentName;
-            
         }
 
+
         MobileAppContent::create($data);
+
+        createAuditTrail('Insert', 'Mobile App Content', '', $request->page_name);
+
 
         return redirect()
             ->route('admin.mobile-content.index')
             ->with('success', 'Page created successfully.');
+
 
     }
 
@@ -95,7 +101,8 @@ class MobileContentController extends Controller
     public function update(Request $request, $id)
     {
         $data = MobileAppContent::findOrFail($id);
-        
+        $old_value = $data->page_name;
+
         $validator = Validator::make($request->all(), [
             'page_name' => 'required|string|max:255',
             'title' => 'nullable|string|min:3|max:255',
@@ -135,17 +142,23 @@ class MobileContentController extends Controller
 
         MobileAppContent::where('id', $id)->update($data);
 
+        createAuditTrail('Update', 'Mobile App Content', $old_value, $request->page_name);
+
         return redirect()
             ->route('admin.mobile-content.index')
             ->with('success', 'Page updated successfully.');
     }
 
-     public function destroy($id)
+    public function destroy($id)
     {
         $content = MobileAppContent::findOrFail($id);
+        $old_value = $content->page_name;
         $content->delete();
+
+        createAuditTrail('Delete', 'Mobile App Content', $old_value, $old_value);
+
         return redirect()->route('admin.mobile-content.index')
-                         ->with('success', 'Page deleted successfully.');
+            ->with('success', 'Page deleted successfully.');
     }
 
     public function trashed()
@@ -159,19 +172,19 @@ class MobileContentController extends Controller
         $content = MobileAppContent::onlyTrashed()->findOrFail($id);
         $content->restore();
         return redirect()->route('admin.mobile-content.index')
-                         ->with('success', 'Page restored successfully.');
+            ->with('success', 'Page restored successfully.');
     }
 
     public function forceDelete($id)
     {
         $content = MobileAppContent::onlyTrashed()->findOrFail($id);
 
-        if ($content->attachment && File::exists(public_path('assets/uploads/img/mobileAppContent/'.$content->attachment))) {
-            File::delete(public_path('assets/uploads/img/mobileAppContent/'.$content->attachment));
+        if ($content->attachment && File::exists(public_path('assets/uploads/img/mobileAppContent/' . $content->attachment))) {
+            File::delete(public_path('assets/uploads/img/mobileAppContent/' . $content->attachment));
         }
 
         $content->forceDelete();
         return redirect()->route('admin.mobile-content.index')
-                         ->with('success', 'Page permanently deleted.');
+            ->with('success', 'Page permanently deleted.');
     }
 }

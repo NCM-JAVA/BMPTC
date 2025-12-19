@@ -5,6 +5,20 @@
 @section('content')
     <div class="container">
 
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="flash-success">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="flash-error">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="card shadow-sm border-0 no-radius">
             <div class="card-header dashboard-bg-color text-white d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Manage Hazard</h6>
@@ -13,33 +27,33 @@
                 </a>
             </div>
 			 <div class="card-header">
-    <div class="row">
-        <div class="col-md-12 d-flex justify-content-end">
-            <form method="GET" action="{{ route('admin.manage-hazard.index') }}" class="row g-2 align-items-center w-100">
+                <div class="row">
+                    <div class="col-md-12 d-flex justify-content-end">
+                        <form method="GET" action="{{ route('admin.manage-hazard.index') }}" class="row g-2 align-items-center w-100">
 
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Search by hazard or hazard code"
-                        value="{{ request('search') }}">
-                </div>
-				
-                <div class="col-md-3">
-                    <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Draft</option>
-                        <option value="2" {{ request('status') == '2' ? 'selected' : '' }}>Approved</option>
-                        <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>Published</option>
-                    </select>
-                </div>
+                            <div class="col-md-3">
+                                <input type="text" name="search" class="form-control" placeholder="Search by hazard or hazard code"
+                                    value="{{ request('search') }}">
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <select name="status" class="form-select">
+                                    <option value="">All Status</option>
+                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Draft</option>
+                                    <option value="2" {{ request('status') == '2' ? 'selected' : '' }}>Approved</option>
+                                    <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>Published</option>
+                                </select>
+                            </div>
 
-                <div class="col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <a href="{{ route('admin.manage-hazard.index') }}" class="btn btn-secondary">Reset</a>
-                </div>
+                            <div class="col-md-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                                <a href="{{ route('admin.manage-hazard.index') }}" class="btn btn-secondary">Reset</a>
+                            </div>
 
-            </form>
-        </div>
-    </div>
-</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <div class="card-body">
                 <div class="table-responsive">
